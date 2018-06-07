@@ -1,14 +1,24 @@
-<ion-header>
-  <ion-navbar>
-    <ion-title>
-      Ionic Blank
-    </ion-title>
-  </ion-navbar>
-</ion-header>
-
 <ion-content padding>
-  The world is your oyster.
-  <p>
-    If you get lost, the <a href="http://ionicframework.com/docs/v2">docs</a> will be your guide.
-  </p>
+    <div class="login-block-container">
+        <div class="input-container">
+            <div class="input-label">
+                Login
+            </div>
+            <div class="input-field">
+                <input type="text" [(ngModel)]="loginField">
+            </div>
+        </div>
+        <div class="input-container">
+            <div class="input-label">
+                Password
+            </div>
+            <div class="input-field">
+                <input type="password" [(ngModel)]="password">
+            </div>
+        </div>
+
+        <div class="login-button" (click)="login($event)">
+            Login
+        </div>
+    </div>
 </ion-content>
