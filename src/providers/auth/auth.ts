@@ -23,13 +23,5 @@ export class AuthProvider {
         );
     }
 
-    logout() {
-        return this.http.post(
-            `http://localhost:8080/auth/logout`,
-            {},
-            {withCredentials: true}
-        );
-    }
-
 
 }
