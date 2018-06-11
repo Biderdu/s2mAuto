@@ -8,7 +8,7 @@
 
     <ion-navbar>
         <ion-title>projects</ion-title>
-
+        <div class="logout-button" (click)="logout()">Logout</div>
     </ion-navbar>
 
 </ion-header>
@@ -16,4 +16,29 @@
 
 <ion-content padding>
 
+    <div class="project-list-container">
+        <div class="project-item" *ngFor="let pr of projects" (click)="selectProject(pr)">{{pr.name}}</div>
+    </div>
+
+    <div class="new-project-button" (click)="openModal()">
+        New Project
+    </div>
+
 </ion-content>
+
+<div class="new-project-modal-container" [ngClass]="{'active': modalShow}">
+
+    <div class="modal-overlay" (click)="closeModal()"></div>
+    <div class="name-input-container">
+        <div class="title">
+            Project Name
+        </div>
+        <div class="input-field">
+            <input type="text" [(ngModel)]="newProjectName">
+        </div>
+        <div class="create-button" (click)="createNewProject()">
+            Create
+        </div>
+    </div>
+
+</div>

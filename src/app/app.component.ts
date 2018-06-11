@@ -23,8 +23,8 @@ export class MyApp {
     }
 
     checkPreviousAuthorization(): void {
-        if ((window.localStorage.getItem('username') === "undefined" || window.localStorage.getItem('username') === null) &&
-            (window.localStorage.getItem('password') === "undefined" || window.localStorage.getItem('password') === null)) {
+        if ((window.localStorage.getItem('username') === "undefined" || window.localStorage.getItem('username') === 'null' || window.localStorage.getItem('username') === null) &&
+            (window.localStorage.getItem('password') === "undefined" || window.localStorage.getItem('password') === 'null' || window.localStorage.getItem('password') === null)) {
             this.rootPage = HomePage;
         } else {
             this.rootPage = ProjectsPage;

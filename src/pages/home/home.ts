@@ -17,7 +17,7 @@ export class HomePage {
 
     }
 
-    login() {
+    login(): void {
 
         this.auth.login(this.loginField, this.password).subscribe(
             (res: any) => {

@@ -9,6 +9,7 @@ import {MyApp} from './app.component';
 import {HomePage} from '../pages/home/home';
 import {ProjectsPage} from '../pages/projects/projects';
 import {AuthProvider} from '../providers/auth/auth';
+import {ProjectProvider} from '../providers/project/project';
 
 @NgModule({
     declarations: [
@@ -31,7 +32,8 @@ import {AuthProvider} from '../providers/auth/auth';
         StatusBar,
         SplashScreen,
         {provide: ErrorHandler, useClass: IonicErrorHandler},
-        AuthProvider
+        AuthProvider,
+        ProjectProvider
     ]
 })
 export class AppModule {
