@@ -6,13 +6,25 @@
 -->
 <ion-header>
 
-  <ion-navbar>
-    <ion-title>projectDetails</ion-title>
-  </ion-navbar>
+    <ion-navbar>
+        <ion-title>{{projectName}}</ion-title>
+    </ion-navbar>
 
 </ion-header>
 
 
 <ion-content padding>
+
+    <div class="buttons-container">
+        <div class="upload-photo-button" (click)="selectImage()">add photo</div>
+
+        <div class="calculate-button" (click)="calculate()">calculate</div>
+    </div>
+
+    <div class="images-list">
+        <div class="image-container" *ngFor="let img of images; let i = index">
+            <div class="image" [ngStyle]="{'background-image':'url(' + img.url + ')'}"></div>
+        </div>
+    </div>
 
 </ion-content>

@@ -1,3 +1,89 @@
 page-project-details {
 
+    .buttons-container {
+        position: relative;
+        width: 100%;
+        height: 50px;
+
+        .upload-photo-button {
+            position: absolute;
+            width: 125px;
+            height: 35px;
+
+            top: 50%;
+            right: 55%;
+
+            transform: translate(0, -50%);
+
+            line-height: 35px;
+            border-radius: 2px;
+
+            text-align: center;
+            text-transform: uppercase;
+
+            cursor: pointer;
+            background-color: #03A9F4;
+            color: #ffffff;
+            transition: background-color ease 0.2s;
+
+            &:hover {
+                background-color: #058bf4;
+            }
+        }
+
+        .calculate-button {
+            position: absolute;
+            width: 125px;
+            height: 35px;
+
+            top: 50%;
+            left: 55%;
+
+            transform: translate(0, -50%);
+
+            line-height: 35px;
+            border-radius: 2px;
+
+            text-align: center;
+            text-transform: uppercase;
+
+            cursor: pointer;
+            background-color: #E91E63;
+            color: #ffffff;
+            transition: background-color ease 0.2s;
+
+            &:hover {
+                background-color: #AF0139;
+            }
+        }
+
+    }
+
+
+
+    .images-list {
+        margin-top: 20px;
+
+        .image-container {
+            position: relative;
+            height: 200px;
+            width: 100%;
+
+            margin-bottom: 10px;
+            border-radius: 2px;
+            box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.12);
+
+            .image {
+                position: relative;
+                width: 100%;
+                height: 100%;
+                background-size: cover;
+                background-position: center;
+
+            }
+
+        }
+
+    }
+
 }

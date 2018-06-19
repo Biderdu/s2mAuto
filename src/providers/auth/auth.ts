@@ -11,7 +11,8 @@ import {Injectable} from '@angular/core';
 export class AuthProvider {
 
     // serverUrl: string = 'http://139.129.217.229/';
-    serverUrl: string = 'http://127.0.0.1:8080/';
+    // serverUrl: string = 'http://127.0.0.1:8080/';
+    serverUrl: string = 'http://192.168.1.116:8080/';
 
     constructor(public http: HttpClient) {
 

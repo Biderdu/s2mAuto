@@ -17,7 +17,10 @@
 <ion-content padding>
 
     <div class="project-list-container">
-        <div class="project-item" *ngFor="let pr of projects" (click)="selectProject(pr)">{{pr.name}}</div>
+        <div class="project-item" *ngFor="let pr of projects; let i = index">
+            <div class="name" (click)="selectProject(pr)">{{pr.name}}</div>
+            <div class="delete-button" (click)="removeProject(pr, i)">X</div>
+        </div>
     </div>
 
     <div class="new-project-button" (click)="openModal()">

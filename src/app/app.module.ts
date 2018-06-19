@@ -5,9 +5,12 @@ import {SplashScreen} from '@ionic-native/splash-screen';
 import {StatusBar} from '@ionic-native/status-bar';
 import {HttpClientModule} from '@angular/common/http';
 
+import {ImagePicker} from '@ionic-native/image-picker';
+
 import {MyApp} from './app.component';
 import {HomePage} from '../pages/home/home';
 import {ProjectsPage} from '../pages/projects/projects';
+import {ProjectDetailsPage} from '../pages/project-details/project-details';
 import {AuthProvider} from '../providers/auth/auth';
 import {ProjectProvider} from '../providers/project/project';
 
@@ -15,7 +18,8 @@ import {ProjectProvider} from '../providers/project/project';
     declarations: [
         MyApp,
         HomePage,
-        ProjectsPage
+        ProjectsPage,
+        ProjectDetailsPage
     ],
     imports: [
         BrowserModule,
@@ -26,14 +30,16 @@ import {ProjectProvider} from '../providers/project/project';
     entryComponents: [
         MyApp,
         HomePage,
-        ProjectsPage
+        ProjectsPage,
+        ProjectDetailsPage
     ],
     providers: [
         StatusBar,
         SplashScreen,
         {provide: ErrorHandler, useClass: IonicErrorHandler},
         AuthProvider,
-        ProjectProvider
+        ProjectProvider,
+        ImagePicker
     ]
 })
 export class AppModule {

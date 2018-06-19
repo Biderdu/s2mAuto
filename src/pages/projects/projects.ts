@@ -2,6 +2,7 @@ import {Component} from '@angular/core';
 import {IonicPage, NavController, NavParams} from 'ionic-angular';
 
 import {HomePage} from '../home/home';
+import {ProjectDetailsPage} from '../project-details/project-details';
 
 import {ProjectProvider} from "../../providers/project/project";
 
@@ -71,9 +72,8 @@ export class ProjectsPage {
 
     selectProject(project): void {
 
-        this.navCtrl.push(HomePage);
+        this.navCtrl.push(ProjectDetailsPage, project);
 
-        console.log(project);
     }
 
     openModal(): void {
@@ -103,6 +103,24 @@ export class ProjectsPage {
 
         console.log('Create New Project');
 
+    }
+
+    removeProject(project, index): void {
+
+        this.prjProvider.remove(project._id).subscribe(
+            (res: any) => {
+                console.log(res);
+
+                if(res.status) {
+                    this.projects.splice(index, 1);
+                }
+            },
+            (error) => {
+                console.log(error)
+            }
+        );
+
+        console.log(project);
     }
 
 }

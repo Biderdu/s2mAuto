@@ -27,14 +27,47 @@ page-projects {
     .project-list-container {
 
         .project-item {
+            position: relative;
             margin-top: 10px;
-            padding: 10px;
+            height: 35px;
 
             background-color: #ffffff;
             box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.08);
 
             cursor: pointer;
             transition: background-color ease 0.2s;
+
+            .name {
+                width: calc(100% - 35px);
+                height: 35px;
+                line-height: 35px;
+                padding-left: 10px;
+            }
+
+            .delete-button {
+                position: absolute;
+                right: 0;
+                top: 0;
+                height: 35px;
+                width: 35px;
+
+                font-size: 12px;
+                font-family: sans-serif;
+                font-weight: 500;
+                color: #565656;
+
+                background-color: #ffffff;
+
+                line-height: 35px;
+                text-align: center;
+
+                cursor: pointer;
+
+                &:hover {
+                    background-color: #f2f2f2;
+                }
+
+            }
 
             &:hover {
                 background-color: #fcfcff;
