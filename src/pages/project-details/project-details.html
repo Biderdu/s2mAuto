@@ -23,6 +23,7 @@
 
     <div class="images-list">
         <div class="image-container" *ngFor="let img of images; let i = index">
+            <div class="remove-button" (click)="removeImage(img, i)">remove</div>
             <div class="image" [ngStyle]="{'background-image':'url(' + img.url + ')'}"></div>
         </div>
     </div>

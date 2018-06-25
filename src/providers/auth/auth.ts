@@ -1,6 +1,8 @@
 import {HttpClient} from '@angular/common/http';
 import {Injectable} from '@angular/core';
 
+import {ConfigProvider} from "../config/config";
+
 /*
   Generated class for the AuthProvider provider.
 
@@ -10,16 +12,12 @@ import {Injectable} from '@angular/core';
 @Injectable()
 export class AuthProvider {
 
-    // serverUrl: string = 'http://139.129.217.229/';
-    // serverUrl: string = 'http://127.0.0.1:8080/';
-    serverUrl: string = 'http://192.168.1.116:8080/';
-
-    constructor(public http: HttpClient) {
+    constructor(public http: HttpClient, public config: ConfigProvider) {
 
     }
 
     login(login, password) {
-        let url:string = this.serverUrl + 'api/auth/login';
+        let url:string = this.config.serverUrl + 'api/auth/login';
 
         return this.http.post(
             url,

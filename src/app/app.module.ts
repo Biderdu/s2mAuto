@@ -13,6 +13,7 @@ import {ProjectsPage} from '../pages/projects/projects';
 import {ProjectDetailsPage} from '../pages/project-details/project-details';
 import {AuthProvider} from '../providers/auth/auth';
 import {ProjectProvider} from '../providers/project/project';
+import {ConfigProvider} from '../providers/config/config';
 
 @NgModule({
     declarations: [
@@ -39,7 +40,9 @@ import {ProjectProvider} from '../providers/project/project';
         {provide: ErrorHandler, useClass: IonicErrorHandler},
         AuthProvider,
         ProjectProvider,
-        ImagePicker
+        ImagePicker,
+        ConfigProvider,
+        ConfigProvider
     ]
 })
 export class AppModule {

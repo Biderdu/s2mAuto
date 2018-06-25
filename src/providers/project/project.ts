@@ -1,6 +1,8 @@
 import {HttpClient} from '@angular/common/http';
 import {Injectable} from '@angular/core';
 
+import {ConfigProvider} from "../config/config";
+
 /*
   Generated class for the ProjectProvider provider.
 
@@ -10,16 +12,12 @@ import {Injectable} from '@angular/core';
 @Injectable()
 export class ProjectProvider {
 
-    // serverUrl: string = 'http://139.129.217.229/';
-    // serverUrl: string = 'http://127.0.0.1:8080/';
-    serverUrl: string = 'http://192.168.1.116:8080/';
-
-    constructor(public http: HttpClient) {
+    constructor(public http: HttpClient, public config: ConfigProvider) {
 
     }
 
     getProjects(username, password) {
-        let url: string = this.serverUrl + 'api/stmauto/projects';
+        let url: string = this.config.serverUrl + 'api/stmauto/projects';
 
         return this.http.post(
             url,
@@ -28,7 +26,7 @@ export class ProjectProvider {
     }
 
     create(name, username, password) {
-        let url: string = this.serverUrl + 'api/stmauto/create';
+        let url: string = this.config.serverUrl + 'api/stmauto/create';
 
         return this.http.post(
             url,
@@ -37,7 +35,7 @@ export class ProjectProvider {
     }
 
     remove(id) {
-        let url: string = this.serverUrl + 'api/stmauto/remove';
+        let url: string = this.config.serverUrl + 'api/stmauto/remove';
 
         return this.http.post(
             url,
@@ -46,7 +44,7 @@ export class ProjectProvider {
     }
 
     upload(id, data) {
-        let url: string = this.serverUrl + 'api/stmauto/upload';
+        let url: string = this.config.serverUrl + 'api/stmauto/upload';
 
         return this.http.post(
             url,
@@ -54,8 +52,18 @@ export class ProjectProvider {
         );
     }
 
+    deleteImage(id, name) {
+
+        let url: string = this.config.serverUrl + 'api/stmauto/deleteimage';
+
+        return this.http.post(
+            url,
+            {id, name}
+        );
+    }
+
     calculate(id) {
-        let url: string = this.serverUrl + 'api/stmauto/calculate';
+        let url: string = this.config.serverUrl + 'api/stmauto/calculate';
 
         return this.http.post(
             url,

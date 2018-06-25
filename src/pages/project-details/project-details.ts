@@ -3,6 +3,7 @@ import {IonicPage, NavController, NavParams} from 'ionic-angular';
 import {ImagePicker} from '@ionic-native/image-picker';
 
 import {ProjectProvider} from "../../providers/project/project";
+import {ConfigProvider} from "../../providers/config/config";
 
 /**
  * Generated class for the ProjectDetailsPage page.
@@ -22,9 +23,7 @@ export class ProjectDetailsPage {
     projectName: string = '';
     images: Array<any> = [];
 
-    serverUrl: string = 'http://192.168.1.116:8080/';
-
-    constructor(public navCtrl: NavController, public navParams: NavParams, private imagePicker: ImagePicker, public prjProvider: ProjectProvider) {
+    constructor(public navCtrl: NavController, public navParams: NavParams, private imagePicker: ImagePicker, public prjProvider: ProjectProvider, public config: ConfigProvider) {
 
         this.projectId = this.navParams.get('_id');
         this.projectName = this.navParams.get('name');
@@ -36,7 +35,8 @@ export class ProjectDetailsPage {
         for (let i = 0, length = images.length; i < length; i++) {
 
             let item = {
-                url: this.serverUrl + 'uploads/sauto/' + this.projectId + '/' + images[i].name
+                name: images[i].name,
+                url: this.config.serverUrl + 'uploads/sauto/' + this.projectId + '/' + images[i].name
             };
 
             this.images.push(item);
@@ -122,7 +122,7 @@ export class ProjectDetailsPage {
                 if(res.success) {
 
                     let item = {
-                        url: this.serverUrl + 'uploads/sauto/' + this.projectId + '/' + fullname
+                        url: this.config.serverUrl + 'uploads/sauto/' + this.projectId + '/' + fullname
                     };
 
                     this.images.push(item);
@@ -135,6 +135,27 @@ export class ProjectDetailsPage {
                 console.log(error)
             }
         );
+
+    }
+
+    removeImage(image, index): void {
+
+        console.log(image);
+
+        this.prjProvider.deleteImage(this.projectId, image.name).subscribe(
+            (res: any) => {
+                console.log(res);
+
+                if(res.success) {
+                    this.images.splice(index,1);
+                }
+
+            },
+            (error) => {
+                console.log(error)
+            }
+        );
+
 
     }
 }
