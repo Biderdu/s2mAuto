@@ -15,6 +15,10 @@
 
 <ion-content padding>
 
+    <div class="loader-container" [ngClass]="{'active': processModal}">
+        processing...
+    </div>
+
     <div class="buttons-container">
         <div class="upload-photo-button" (click)="selectImage()">add photo</div>
 

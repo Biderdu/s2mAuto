@@ -1,5 +1,28 @@
 page-project-details {
 
+    .loader-container {
+        display: none;
+        position: fixed;
+        top: 40%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 10000;
+
+        width: 150px;
+        height: 50px;
+        background-color: #ffffff;
+        box-shadow: 0 2px 5px 0 rgba(0,0,0,0.15);
+
+        text-align: center;
+        line-height: 50px;
+        border-radius: 2px;
+
+        &.active {
+            display: block;
+        }
+
+    }
+
     .buttons-container {
         position: relative;
         width: 100%;
@@ -58,8 +81,6 @@ page-project-details {
         }
 
     }
-
-
 
     .images-list {
         margin-top: 20px;

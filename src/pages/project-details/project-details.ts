@@ -21,7 +21,10 @@ export class ProjectDetailsPage {
 
     projectId: string = '';
     projectName: string = '';
+
     images: Array<any> = [];
+
+    processModal: boolean = false;
 
     constructor(public navCtrl: NavController, public navParams: NavParams, private imagePicker: ImagePicker, public prjProvider: ProjectProvider, public config: ConfigProvider) {
 
@@ -103,7 +106,7 @@ export class ProjectDetailsPage {
 
         canvas.getContext('2d').drawImage(image, 0, 0);
 
-        const data = canvas.toDataURL('image/jpg');
+        const data = canvas.toDataURL('image/jpeg',0.9);
 
         const fullname = image.src.split("/").pop();
         // const name = fullname.split(".")[0];
@@ -116,6 +119,8 @@ export class ProjectDetailsPage {
             fullname
         };
 
+        this.processModal = true;
+
         this.prjProvider.upload(this.projectId, info).subscribe(
             (res: any) => {
 
@@ -127,11 +132,14 @@ export class ProjectDetailsPage {
 
                     this.images.push(item);
 
+                    this.processModal = false;
+
                 }
 
                 console.log(res);
             },
             (error) => {
+                this.processModal = false;
                 console.log(error)
             }
         );
