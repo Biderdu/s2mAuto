@@ -71,4 +71,13 @@ export class ProjectProvider {
         );
     }
 
+    export(id, username, password) {
+        let url: string = this.config.serverUrl + 'api/stmauto/export';
+
+        return this.http.post(
+            url,
+            {id, username, password}
+        );
+    }
+
 }

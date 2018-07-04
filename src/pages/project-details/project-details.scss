@@ -30,11 +30,11 @@ page-project-details {
 
         .upload-photo-button {
             position: absolute;
-            width: 125px;
+            width: 100px;
             height: 35px;
 
             top: 50%;
-            right: 55%;
+            left: 0;
 
             transform: translate(0, -50%);
 
@@ -56,13 +56,13 @@ page-project-details {
 
         .calculate-button {
             position: absolute;
-            width: 125px;
+            width: 100px;
             height: 35px;
 
             top: 50%;
-            left: 55%;
+            left: 50%;
 
-            transform: translate(0, -50%);
+            transform: translate(-50%, -50%);
 
             line-height: 35px;
             border-radius: 2px;
@@ -78,6 +78,34 @@ page-project-details {
             &:hover {
                 background-color: #AF0139;
             }
+        }
+
+        .export-button {
+
+            position: absolute;
+            width: 100px;
+            height: 35px;
+
+            top: 50%;
+            right: 0;
+
+            transform: translate(0, -50%);
+
+            line-height: 35px;
+            border-radius: 2px;
+
+            text-align: center;
+            text-transform: uppercase;
+
+            cursor: pointer;
+            background-color: #22e92f;
+            color: #ffffff;
+            transition: background-color ease 0.2s;
+
+            &:hover {
+                background-color: #089812;
+            }
+
         }
 
     }

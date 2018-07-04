@@ -24,6 +24,9 @@ export class ProjectDetailsPage {
 
     images: Array<any> = [];
 
+    username: string = window.localStorage.getItem('username') || '';
+    password: string = window.localStorage.getItem('password') || '';
+
     processModal: boolean = false;
 
     constructor(public navCtrl: NavController, public navParams: NavParams, private imagePicker: ImagePicker, public prjProvider: ProjectProvider, public config: ConfigProvider) {
@@ -53,6 +56,19 @@ export class ProjectDetailsPage {
     calculate(): void {
 
         this.prjProvider.calculate(this.projectId).subscribe(
+            (res: any) => {
+                console.log(res);
+            },
+            (error) => {
+                console.log(error)
+            }
+        );
+
+    }
+
+    export(): void {
+
+        this.prjProvider.export(this.projectId, this.username, this.password).subscribe(
             (res: any) => {
                 console.log(res);
             },
