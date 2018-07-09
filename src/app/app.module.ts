@@ -7,6 +7,8 @@ import {HttpClientModule} from '@angular/common/http';
 
 import {ImagePicker} from '@ionic-native/image-picker';
 
+import {ComponentsModule} from '../components/components.module';
+
 import {MyApp} from './app.component';
 import {HomePage} from '../pages/home/home';
 import {ProjectsPage} from '../pages/projects/projects';
@@ -25,7 +27,8 @@ import {ConfigProvider} from '../providers/config/config';
     imports: [
         BrowserModule,
         HttpClientModule,
-        IonicModule.forRoot(MyApp)
+        IonicModule.forRoot(MyApp),
+        ComponentsModule
     ],
     bootstrap: [IonicApp],
     entryComponents: [
@@ -41,7 +44,6 @@ import {ConfigProvider} from '../providers/config/config';
         AuthProvider,
         ProjectProvider,
         ImagePicker,
-        ConfigProvider,
         ConfigProvider
     ]
 })

@@ -55,9 +55,17 @@ export class ProjectDetailsPage {
 
     calculate(): void {
 
+        this.processModal = true;
+
         this.prjProvider.calculate(this.projectId).subscribe(
             (res: any) => {
+
+                this.processModal = false;
+
+                alert('Calculations Done');
+
                 console.log(res);
+
             },
             (error) => {
                 console.log(error)
@@ -68,9 +76,17 @@ export class ProjectDetailsPage {
 
     export(): void {
 
+        this.processModal = true;
+
         this.prjProvider.export(this.projectId, this.username, this.password).subscribe(
             (res: any) => {
+
+                this.processModal = false;
+
+                alert('Export Success');
+
                 console.log(res);
+
             },
             (error) => {
                 console.log(error)
@@ -124,7 +140,7 @@ export class ProjectDetailsPage {
 
         const data = canvas.toDataURL('image/jpeg',0.9);
 
-        const fullname = image.src.split("/").pop();
+        const fullname = image.src.split("/").pop().toLowerCase();
         // const name = fullname.split(".")[0];
         // const extension = fullname.split(".")[1];
 
@@ -150,6 +166,12 @@ export class ProjectDetailsPage {
 
                     this.processModal = false;
 
+                } else {
+                    console.log('unstable solution');
+
+                    this.processModal = false;
+
+                    alert('unstable solution');
                 }
 
                 console.log(res);
