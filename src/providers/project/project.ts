@@ -25,6 +25,15 @@ export class ProjectProvider {
         );
     }
 
+    get(id) {
+        let url: string = this.config.serverUrl + 'api/stmauto/get';
+
+        return this.http.post(
+            url,
+            {id}
+        );
+    }
+
     create(name, username, password) {
         let url: string = this.config.serverUrl + 'api/stmauto/create';
 

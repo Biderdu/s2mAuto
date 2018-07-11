@@ -11,8 +11,8 @@ import {Injectable} from '@angular/core';
 export class ConfigProvider {
 
     // serverUrl: string = 'http://3dcloudworld.com/';
-    serverUrl: string = 'http://192.168.1.116:8080/';
-    // serverUrl: string = 'http://139.129.217.229/';
+    // serverUrl: string = 'http://192.168.1.116:8080/';
+    serverUrl: string = 'http://139.129.217.229/';
 
     constructor(public http: HttpClient) {
         console.log('Hello ConfigProvider Provider');

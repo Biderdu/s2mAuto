@@ -1,9 +1,10 @@
-import {Component} from '@angular/core';
+import {Component, ViewChild} from '@angular/core';
 import {IonicPage, NavController, NavParams} from 'ionic-angular';
 import {ImagePicker} from '@ionic-native/image-picker';
 
 import {ProjectProvider} from "../../providers/project/project";
 import {ConfigProvider} from "../../providers/config/config";
+import {MapComponent} from "../../components/map/map";
 
 /**
  * Generated class for the ProjectDetailsPage page.
@@ -15,7 +16,7 @@ import {ConfigProvider} from "../../providers/config/config";
 @IonicPage()
 @Component({
     selector: 'page-project-details',
-    templateUrl: 'project-details.html',
+    templateUrl: 'project-details.html'
 })
 export class ProjectDetailsPage {
 
@@ -29,31 +30,59 @@ export class ProjectDetailsPage {
 
     processModal: boolean = false;
 
+    color: string = 'red';
+
+    @ViewChild(MapComponent) map:MapComponent;
+
     constructor(public navCtrl: NavController, public navParams: NavParams, private imagePicker: ImagePicker, public prjProvider: ProjectProvider, public config: ConfigProvider) {
 
         this.projectId = this.navParams.get('_id');
         this.projectName = this.navParams.get('name');
 
-        let images = this.navParams.get('images');
+        // let images = this.navParams.get('images');
 
-        // let test = ['https://iso.500px.com/wp-content/uploads/2015/11/photo-129299193.jpg', 'http://illusion.scene360.com/wp-content/uploads/2015/10/alejandro-burdisio-12.jpg', 'https://i.pinimg.com/originals/0e/22/4a/0e224aaa4db22edd39bf4662f94eb800.jpg', 'https://i.pinimg.com/originals/0d/0f/7e/0d0f7e52483128a5845922c2b53d151e.jpg'];
-
-        for (let i = 0, length = images.length; i < length; i++) {
-
-            let item = {
-                name: images[i].name,
-                url: this.config.serverUrl + 'uploads/sauto/' + this.projectId + '/' + images[i].name
-            };
-
-            this.images.push(item);
-
-        }
-
-        console.log(this.projectId, this.projectName, this.images);
+        this.load();
 
     }
 
-    calculate(): void {
+    load(): void {
+
+        this.prjProvider.get(this.projectId).subscribe(
+            (res: any) => {
+                console.log('LOAD', res);
+
+                if(res.status) {
+
+                    let images = res.project.images;
+
+                    for (let i = 0, length = images.length; i < length; i++) {
+
+                        let item = {
+                            name: images[i].name,
+                            url: this.config.serverUrl + 'uploads/sauto/' + this.projectId + '/' + images[i].name,
+                            position: images[i].position
+
+                        };
+
+                        this.images.push(item);
+
+                    }
+
+                    this.redrawMap();
+
+                }
+
+                // console.log(this.projectId, this.projectName, this.images);
+
+            },
+            (error) => {
+                console.log(error)
+            }
+        )
+
+    }
+
+    calculate_old(): void {
 
         this.processModal = true;
 
@@ -72,6 +101,10 @@ export class ProjectDetailsPage {
             }
         );
 
+    }
+
+    calculate(): void {
+        this.map.test();
     }
 
     export(): void {
@@ -133,16 +166,14 @@ export class ProjectDetailsPage {
     uploadImage(image): void {
 
         const canvas = document.createElement('canvas');
-        canvas.width = image.naturalWidth; // or 'width' if you want a special/scaled size
-        canvas.height = image.naturalHeight; // or 'height' if you want a special/scaled size
+        canvas.width = image.naturalWidth;
+        canvas.height = image.naturalHeight;
 
         canvas.getContext('2d').drawImage(image, 0, 0);
 
         const data = canvas.toDataURL('image/jpeg',0.9);
 
         const fullname = image.src.split("/").pop().toLowerCase();
-        // const name = fullname.split(".")[0];
-        // const extension = fullname.split(".")[1];
 
         console.log(fullname);
 
@@ -159,10 +190,13 @@ export class ProjectDetailsPage {
                 if(res.success) {
 
                     let item = {
-                        url: this.config.serverUrl + 'uploads/sauto/' + this.projectId + '/' + fullname
+                        url: this.config.serverUrl + 'uploads/sauto/' + this.projectId + '/' + fullname,
+                        position: res.position
                     };
 
                     this.images.push(item);
+
+                    this.redrawMap();
 
                     this.processModal = false;
 
@@ -186,8 +220,6 @@ export class ProjectDetailsPage {
 
     removeImage(image, index): void {
 
-        console.log(image);
-
         this.prjProvider.deleteImage(this.projectId, image.name).subscribe(
             (res: any) => {
                 console.log(res);
@@ -202,6 +234,17 @@ export class ProjectDetailsPage {
             }
         );
 
+    }
+
+    redrawMap() {
+        this.map.load(this.images);
+    }
+
+    ionViewDidEnter() {
+
+        this.map.initScene();
+
+        // this.redrawMap();
 
     }
 }

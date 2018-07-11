@@ -27,6 +27,10 @@
         <div class="export-button" (click)="export()">export</div>
     </div>
 
+    <div class="map-container">
+        <map [color]="color"></map>
+    </div>
+
     <div class="images-list">
         <div class="image-container" *ngFor="let img of images; let i = index">
             <div class="remove-button" (click)="removeImage(img, i)">remove</div>
