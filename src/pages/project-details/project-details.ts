@@ -41,8 +41,6 @@ export class ProjectDetailsPage {
 
         // let images = this.navParams.get('images');
 
-        this.load();
-
     }
 
     load(): void {
@@ -244,7 +242,7 @@ export class ProjectDetailsPage {
 
         this.map.initScene();
 
-        // this.redrawMap();
+        this.load();
 
     }
 }

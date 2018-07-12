@@ -1,12 +1,13 @@
 import {Component, Input, ElementRef} from '@angular/core';
 
+import {Raycaster} from '../../helpers/raycaster/raycaster';
+
 declare var THREE: any;
 
 // import * as THREE from '../../assets/three/three.module';
 
 // import { THREE } from 'three';
 // import { OrbitControls } from 'three-orbitcontrols-ts';
-
 
 
 /**
@@ -42,11 +43,13 @@ export class MapComponent {
 
     points: Array<any> = [];
 
+    raycaster: any;
+
     constructor(private elementRef: ElementRef) {
 
         this.element = this.elementRef.nativeElement;
 
-        this.pointGeometry = new THREE.CircleGeometry(2,16);
+        this.pointGeometry = new THREE.CircleGeometry(2, 16);
         this.pointMaterial = new THREE.MeshBasicMaterial({color: 0xee2222, side: THREE.FrontSide});
 
     }
@@ -81,13 +84,19 @@ export class MapComponent {
         this.camera.name = 'Camera';
         this.camera.position.set(0, 150, 0);
 
+        this.raycaster = new Raycaster(this.camera, this.renderer);
+
         //Controls
         this.controls = new THREE.OrbitControls(this.camera, this.renderer.domElement);
         this.controls.device = false;
         this.controls.inverse = true;
         this.controls.enableRotate = true;
-        this.controls.enablePan = false;
-        this.controls.enableZoom = false;
+
+        this.controls.maxPolarAngle = Math.PI / 3;
+        this.controls.minPolarAngle = 0;
+
+        this.controls.enablePan = true;
+        this.controls.enableZoom = true;
         this.controls.enableDamping = false;
         this.controls.target.set(0, 0, 0);
         this.controls.update();
@@ -98,10 +107,13 @@ export class MapComponent {
 
         this.floorInit();
 
+        this.listener();
+
         // this.load([]);
 
     }
 
+    //init
     pointsInit(): void {
 
         this.pointsContainer = new THREE.Object3D();
@@ -116,14 +128,18 @@ export class MapComponent {
             new THREE.PlaneBufferGeometry(400, 400, 10, 10)
         );
 
-        new THREE.TextureLoader().load( 'assets/imgs/grid.png', ( text ) => {
+        new THREE.TextureLoader().load('assets/imgs/grid.png', (text) => {
             text.wrapS = text.wrapT = THREE.RepeatWrapping;
             text.offset.set(0, 0);
             text.repeat.set(20, 20);
 
             text.anisotropy = this.renderer.capabilities.getMaxAnisotropy();
 
-            this.planeGrid.material = new THREE.MeshBasicMaterial({map: text, transparent: true, side: THREE.FrontSide});
+            this.planeGrid.material = new THREE.MeshBasicMaterial({
+                map: text,
+                transparent: true,
+                side: THREE.FrontSide
+            });
 
             this.planeGrid.material.map.needsUpdate = true;
             this.planeGrid.material.needsUpdate = true;
@@ -133,7 +149,7 @@ export class MapComponent {
 
         this.planeGrid.name = 'floor';
 
-        this.planeGrid.rotation.set(-Math.PI/2, 0, 0);
+        this.planeGrid.rotation.set(-Math.PI / 2, 0, 0);
 
         this.planeGrid.position.y = -1;
     }
@@ -141,33 +157,6 @@ export class MapComponent {
     load(points: Array<any>): void {
 
         this.points.length = 0;
-
-        // const input = [
-        //     {
-        //         url: 'url1',
-        //         position: {
-        //             x: 0,
-        //             y: 0,
-        //             z: 0
-        //         }
-        //     },
-        //     {
-        //         url: 'url2',
-        //         position: {
-        //             x: 20,
-        //             y: 0,
-        //             z: 0
-        //         }
-        //     },
-        //     {
-        //         url: 'url3',
-        //         position: {
-        //             x: 20,
-        //             y: 0,
-        //             z: 30
-        //         }
-        //     }
-        // ];
 
         for (let i = 0, length = points.length; i < length; i++) {
 
@@ -178,6 +167,7 @@ export class MapComponent {
         this.drawScene();
 
     }
+    //
 
     drawScene(): void {
 
@@ -187,7 +177,11 @@ export class MapComponent {
 
             let pano = this.points[i];
 
+            console.log(pano);
+
             let point = this.createPoint();
+
+            point.pano = pano.name;
 
             point.position.x = pano.position.x * 25;
             // point.position.y = pano.position.y * 25;
@@ -211,17 +205,45 @@ export class MapComponent {
 
         const point = new THREE.Mesh(this.pointGeometry, this.pointMaterial);
 
-        point.rotation.set(-Math.PI/2, 0, 0);
+        point.rotation.set(-Math.PI / 2, 0, 0);
 
         return point;
 
     }
 
+
+    listener(): void {
+
+        this.renderer.domElement.addEventListener('mouseup', (event) => {
+            this.pointsIntersect(event);
+        }, false);
+
+        this.renderer.domElement.addEventListener('touchend', (event) => {
+            this.pointsIntersect(event);
+        }, false);
+
+    }
+
+    pointsIntersect(event: any) {
+
+        this.raycaster.hit(event, this.pointsContainer.children, (intersects) => {
+
+            if (!intersects.length) {
+                return;
+            }
+
+            let intersect = intersects[0];
+
+            console.log(intersect);;
+
+        })
+
+    }
+
+
     test(): void {
 
         this.clearScene();
-
-        console.log('TEST');
 
     }
 
