@@ -25,32 +25,36 @@ export class MapComponent {
 
     @Input() color: string;
 
-    element: any;
+    private element: any;
 
-    width: number = 200;
-    height: number = 200;
+    private width: number = 200;
+    private height: number = 200;
 
-    scene: any;
-    renderer: any;
-    camera: any;
-    controls: any;
+    private scene: any;
+    private renderer: any;
+    private camera: any;
+    private controls: any;
 
-    planeGrid: any;
-    pointsContainer: any;
+    private planeGrid: any;
+    private pointsContainer: any;
 
-    pointGeometry: any;
-    pointMaterial: any;
+    public highlighted: Array<any> = [];
 
-    points: Array<any> = [];
+    private pointGeometry: any;
+    // private pointMaterial: any;
 
-    raycaster: any;
+    private points: Array<any> = [];
+
+    private raycaster: any;
+
+    private customTriplets: boolean = false;
 
     constructor(private elementRef: ElementRef) {
 
         this.element = this.elementRef.nativeElement;
 
         this.pointGeometry = new THREE.CircleGeometry(2, 16);
-        this.pointMaterial = new THREE.MeshBasicMaterial({color: 0xee2222, side: THREE.FrontSide});
+        // this.pointMaterial = new THREE.MeshBasicMaterial({color: 0xee2222, side: THREE.FrontSide});
 
     }
 
@@ -156,9 +160,13 @@ export class MapComponent {
 
     load(points: Array<any>): void {
 
+        this.highlighted.length = 0;
         this.points.length = 0;
 
+        console.log(points);
+
         for (let i = 0, length = points.length; i < length; i++) {
+
 
             this.points.push(points[i]);
 
@@ -176,8 +184,6 @@ export class MapComponent {
         for (let i = 0, length = this.points.length; i < length; i++) {
 
             let pano = this.points[i];
-
-            console.log(pano);
 
             let point = this.createPoint();
 
@@ -203,7 +209,7 @@ export class MapComponent {
 
     createPoint(): any {
 
-        const point = new THREE.Mesh(this.pointGeometry, this.pointMaterial);
+        const point = new THREE.Mesh(this.pointGeometry, new THREE.MeshBasicMaterial({color: 0xee2222, side: THREE.FrontSide}));
 
         point.rotation.set(-Math.PI / 2, 0, 0);
 
@@ -226,20 +232,73 @@ export class MapComponent {
 
     pointsIntersect(event: any) {
 
-        this.raycaster.hit(event, this.pointsContainer.children, (intersects) => {
+        if(this.customTriplets) {
 
-            if (!intersects.length) {
-                return;
-            }
+            this.raycaster.hit(event, this.pointsContainer.children, (intersects) => {
 
-            let intersect = intersects[0];
+                if (!intersects.length) {
+                    return;
+                }
 
-            console.log(intersect);;
+                let intersect = intersects[0].object;
 
-        })
+                let found = false;
+
+                for (let i = 0, length = this.highlighted.length; i < length; i++) {
+
+                    if(this.highlighted[i].pano === intersect.pano) {
+                        found = true;
+                    }
+
+                }
+
+                if(!found) {
+                    this.highlighted.push(intersect);
+                }
+
+                if(this.highlighted.length > 2) {
+                    this.highlighted.shift();
+                }
+
+                this.pointsHiglight();
+
+            })
+
+        }
+
 
     }
 
+    pointsHiglight(): void {
+
+        for (let i = 0, length = this.pointsContainer.children.length; i < length; i++) {
+
+            this.pointsContainer.children[i].material.color.setHex(0xee2222);
+
+        }
+
+        for (let i = 0, length = this.highlighted.length; i < length; i++) {
+
+            this.highlighted[i].material.color.setHex(0x22ee22);
+
+        }
+
+
+
+
+    }
+
+    triplePick(state: boolean): void {
+
+        this.customTriplets = state;
+
+        if(!this.customTriplets) {
+            this.highlighted.length = 0;
+        }
+
+        this.pointsHiglight();
+
+    }
 
     test(): void {
 

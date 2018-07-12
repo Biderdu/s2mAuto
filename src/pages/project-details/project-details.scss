@@ -71,13 +71,17 @@ page-project-details {
             text-transform: uppercase;
 
             cursor: pointer;
-            background-color: #E91E63;
+            background-color: #7e7e7e;
             color: #ffffff;
             transition: background-color ease 0.2s;
 
-            &:hover {
-                background-color: #AF0139;
+            &.active {
+                background-color: #2ded54;
             }
+
+            //&:hover {
+            //    background-color: #AF0139;
+            //}
         }
 
         .export-button {
@@ -98,12 +102,12 @@ page-project-details {
             text-transform: uppercase;
 
             cursor: pointer;
-            background-color: #22e92f;
+            background-color: #03A9F4;
             color: #ffffff;
             transition: background-color ease 0.2s;
 
             &:hover {
-                background-color: #089812;
+                background-color: #058bf4;
             }
 
         }

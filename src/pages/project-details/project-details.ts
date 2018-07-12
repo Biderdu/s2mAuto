@@ -32,6 +32,8 @@ export class ProjectDetailsPage {
 
     color: string = 'red';
 
+    customTriplets: boolean = false;
+
     @ViewChild(MapComponent) map:MapComponent;
 
     constructor(public navCtrl: NavController, public navParams: NavParams, private imagePicker: ImagePicker, public prjProvider: ProjectProvider, public config: ConfigProvider) {
@@ -80,6 +82,23 @@ export class ProjectDetailsPage {
 
     }
 
+    triplePick(): void {
+
+        if(this.customTriplets) {
+
+            this.customTriplets = false;
+            this.map.triplePick(this.customTriplets);
+
+        } else {
+
+            this.customTriplets = true;
+            this.map.triplePick(this.customTriplets);
+
+        }
+
+        console.log('triple pick');
+    }
+
     calculate_old(): void {
 
         this.processModal = true;
@@ -102,7 +121,15 @@ export class ProjectDetailsPage {
     }
 
     calculate(): void {
-        this.map.test();
+        const triplets = [];
+
+        for (let i = 0, length = this.map.highlighted.length; i < length; i++) {
+
+            triplets.push(this.map.highlighted[i].pano);
+
+        }
+
+        console.log(triplets);
     }
 
     export(): void {
@@ -175,9 +202,18 @@ export class ProjectDetailsPage {
 
         console.log(fullname);
 
+        const triplets = [];
+
+        for (let i = 0, length = this.map.highlighted.length; i < length; i++) {
+
+            triplets.push(this.map.highlighted[i].pano);
+
+        }
+
         const info = {
             data,
-            fullname
+            fullname,
+            triplets
         };
 
         this.processModal = true;
@@ -188,6 +224,7 @@ export class ProjectDetailsPage {
                 if(res.success) {
 
                     let item = {
+                        name: fullname,
                         url: this.config.serverUrl + 'uploads/sauto/' + this.projectId + '/' + fullname,
                         position: res.position
                     };
@@ -224,6 +261,8 @@ export class ProjectDetailsPage {
 
                 if(res.success) {
                     this.images.splice(index,1);
+
+                    this.redrawMap();
                 }
 
             },

@@ -22,7 +22,7 @@
     <div class="buttons-container">
         <div class="upload-photo-button" (click)="selectImage()">add photo</div>
 
-        <div class="calculate-button" (click)="calculate()">calculate</div>
+        <div class="calculate-button" [ngClass]="{'active': customTriplets}" (click)="triplePick()">Triple pick</div>
 
         <div class="export-button" (click)="export()">export</div>
     </div>
