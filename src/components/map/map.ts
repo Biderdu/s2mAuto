@@ -2,7 +2,10 @@ import {Component, Input, ElementRef} from '@angular/core';
 
 import {Raycaster} from '../../helpers/raycaster/raycaster';
 
+import {ConfigProvider} from "../../providers/config/config";
+
 declare var THREE: any;
+declare var TWEEN: any;
 
 // import * as THREE from '../../assets/three/three.module';
 
@@ -25,23 +28,33 @@ export class MapComponent {
 
     @Input() color: string;
 
+    private projectId: string;
+
     private element: any;
 
     private width: number = 200;
     private height: number = 200;
+
+    private rendererWidth: number = 200;
+    private rendererHeight: number = 200;
 
     private scene: any;
     private renderer: any;
     private camera: any;
     private controls: any;
 
+    private state: string = 'map';
+
     private planeGrid: any;
     private pointsContainer: any;
+    private aurasContainer: Array<any> = [];
 
     public highlighted: Array<any> = [];
 
     private pointGeometry: any;
+    private pointAuraGeometry: any;
     // private pointMaterial: any;
+    private pointAuraMaterial: any;
 
     private points: Array<any> = [];
 
@@ -49,12 +62,22 @@ export class MapComponent {
 
     private customTriplets: boolean = false;
 
-    constructor(private elementRef: ElementRef) {
+    // private showMapButton: boolean = false;
+
+    private holdTimer: any;
+    private holdPreviewTimer: any;
+
+    private panoBall: any;
+    private panoBallMaterial: any;
+
+    constructor(private elementRef: ElementRef, private config: ConfigProvider) {
 
         this.element = this.elementRef.nativeElement;
 
         this.pointGeometry = new THREE.CircleGeometry(2, 16);
+        this.pointAuraGeometry = new THREE.CircleGeometry(6, 16);
         // this.pointMaterial = new THREE.MeshBasicMaterial({color: 0xee2222, side: THREE.FrontSide});
+        this.pointAuraMaterial = new THREE.MeshBasicMaterial({color: 0xee2222, visible: false, side: THREE.FrontSide});
 
     }
 
@@ -67,6 +90,12 @@ export class MapComponent {
         this.width = this.element.offsetWidth;
         this.height = this.element.offsetHeight;
 
+
+        this.rendererHeight = 400;
+        this.rendererWidth = this.rendererHeight * (this.width/this.height);
+
+        // console.log(this.width, this.height, this.rendererWidth, this.rendererHeight);
+
         // Scene
         this.scene = new THREE.Scene();
         this.scene.name = 'Scene';
@@ -78,7 +107,7 @@ export class MapComponent {
         });
         this.renderer.setClearColor(0x565656, 1.0);
         this.renderer.setPixelRatio(window.devicePixelRatio);
-        this.renderer.setSize(this.width, this.height);
+        this.renderer.setSize(this.rendererWidth, this.rendererHeight);
 
         this.element.appendChild(this.renderer.domElement);
 
@@ -110,6 +139,8 @@ export class MapComponent {
         this.pointsInit();
 
         this.floorInit();
+
+        this.createPanoball();
 
         this.listener();
 
@@ -158,7 +189,22 @@ export class MapComponent {
         this.planeGrid.position.y = -1;
     }
 
-    load(points: Array<any>): void {
+    createPanoball(): void {
+
+        const geometry = new THREE.SphereBufferGeometry(50, 32, 32);
+        this.panoBallMaterial = new THREE.MeshBasicMaterial({side: THREE.BackSide})
+
+        this.panoBall = new THREE.Mesh(geometry, this.panoBallMaterial);
+
+        this.panoBall.scale.set(-1, 1, 1);
+
+        // this.scene.add(this.panoBall);
+
+    }
+
+    load(points: Array<any>, id: string): void {
+
+        this.projectId = id;
 
         this.highlighted.length = 0;
         this.points.length = 0;
@@ -166,10 +212,7 @@ export class MapComponent {
         console.log(points);
 
         for (let i = 0, length = points.length; i < length; i++) {
-
-
             this.points.push(points[i]);
-
         }
 
         this.drawScene();
@@ -195,11 +238,15 @@ export class MapComponent {
 
             this.pointsContainer.add(point);
 
+            this.aurasContainer.push(point.aura);
+
         }
 
     }
 
     clearScene(): void {
+
+        this.aurasContainer.length = 0;
 
         for (let i = this.pointsContainer.children.length - 1; i >= 0; i--) {
             this.pointsContainer.remove(this.pointsContainer.children[i]);
@@ -210,37 +257,255 @@ export class MapComponent {
     createPoint(): any {
 
         const point = new THREE.Mesh(this.pointGeometry, new THREE.MeshBasicMaterial({color: 0xee2222, side: THREE.FrontSide}));
+        point.name = 'point';
 
         point.rotation.set(-Math.PI / 2, 0, 0);
+
+        const aura = new THREE.Mesh(this.pointAuraGeometry, this.pointAuraMaterial);
+        aura.name = 'aura';
+
+        aura.position.set(0, 0, -0.5);
+
+        aura.point = point;
+        point.aura = aura;
+
+        point.add(aura);
 
         return point;
 
     }
 
-
+    //listeners
     listener(): void {
 
+        this.renderer.domElement.addEventListener('mousedown', (event) => {
+            this.mouseDown(event);
+        }, false);
+
+        this.renderer.domElement.addEventListener('touchstart', (event) => {
+            this.mouseDown(event);
+        }, false);
+
+
+         this.renderer.domElement.addEventListener('mousemove', (event) => {
+            this.mouseMove(event);
+        }, false);
+
+        this.renderer.domElement.addEventListener('touchmove', (event) => {
+            this.mouseMove(event);
+        }, false);
+
+
         this.renderer.domElement.addEventListener('mouseup', (event) => {
-            this.pointsIntersect(event);
+            this.mouseUp(event);
         }, false);
 
         this.renderer.domElement.addEventListener('touchend', (event) => {
-            this.pointsIntersect(event);
+            this.mouseUp(event);
         }, false);
 
     }
 
-    pointsIntersect(event: any) {
+    mouseDown(event: any): void {
 
-        if(this.customTriplets) {
+        if(this.state === 'map') {
 
-            this.raycaster.hit(event, this.pointsContainer.children, (intersects) => {
+            this.pointSelect(event);
+
+        } else if(this.state === 'preview') {
+
+            // this.holdPreviewTimer = setTimeout(() => {
+            //     this.previewRemove()
+            // },1500);
+
+        }
+
+
+    }
+
+    mouseUp(event: any): void {
+
+        if(this.holdTimer) {
+            clearTimeout(this.holdTimer);
+        }
+
+        if(this.holdPreviewTimer) {
+            clearTimeout(this.holdPreviewTimer);
+        }
+
+        this.pointsIntersect(event);
+
+    }
+
+    mouseMove(event: any): void {
+
+        if(this.state === 'map') {
+
+            this.raycaster.hit(event, this.aurasContainer, (intersects) => {
+
+                if (!intersects.length) {
+                    if(this.holdTimer) {
+                        clearTimeout(this.holdTimer);
+                    }
+
+                    return;
+                }
+
+            });
+
+        }
+
+    }
+
+    //
+
+    pointSelect(event: any): void {
+
+        this.raycaster.hit(event, this.aurasContainer, (intersects) => {
+
+            if (!intersects.length) {
+                return;
+            }
+
+            let intersect = intersects[0].object.point;
+
+            this.holdTimer = setTimeout(() => {
+                this.pointPreview(intersect)
+            },1500);
+
+        });
+
+    }
+
+    pointPreview(point: any): void {
+
+        this.state = 'preview';
+
+        this.panoBall.position.set(point.position.x, point.position.y + 50, point.position.z);
+
+        const image = new Image();
+
+        image.crossOrigin = 'anonymous';
+
+        const add = '?time=' + Date.now();
+
+        const src = this.config.serverUrl + 'uploads/sauto/' + this.projectId + '/midres/' + point.pano + add;
+
+        this.scene.add(this.panoBall);
+
+        let start = {x: 0};
+        let target = {x: 1};
+
+        let cameraStart = this.camera.position.clone();
+        let cameraDistance = new THREE.Vector3(this.panoBall.position.x - cameraStart.x, this.panoBall.position.y - cameraStart.y, this.panoBall.position.z - cameraStart.z);
+
+        let targetStart = this.controls.target.clone();
+        let targetDistance = new THREE.Vector3(this.panoBall.position.x - targetStart.x, this.panoBall.position.y - targetStart.y, this.panoBall.position.z + 1 - targetStart.z);
+
+
+        let duration = 1000;
+
+        let transition = new TWEEN.Tween(start).to(target, duration)
+            .easing(TWEEN.Easing.Linear.None)
+            .onStart(() => {
+
+            }).onUpdate((alpha) => {
+
+                this.camera.position.x = cameraStart.x + (alpha.x * cameraDistance.x);
+                this.camera.position.y = cameraStart.y + (alpha.x * cameraDistance.y);
+                this.camera.position.z = cameraStart.z + (alpha.x * cameraDistance.z);
+
+                this.controls.target.x = targetStart.x + (alpha.x * targetDistance.x);
+                this.controls.target.y = targetStart.y + (alpha.x * targetDistance.y);
+                this.controls.target.z = targetStart.z + (alpha.x * targetDistance.z);
+
+            }).onComplete(() => {
+                transition.stop();
+            }).onStop(() => {
+                this.controls.maxPolarAngle = Math.PI;
+            });
+
+
+
+
+        image.onload = () => {
+            this.panoBallMaterial.map = new THREE.Texture(image);
+            this.panoBallMaterial.map.needsUpdate = true;
+            this.panoBallMaterial.needsUpdate = true;
+
+            transition.start();
+        }
+
+        image.src = src;
+
+
+    }
+
+    hidePreview(): void {
+
+        let start = {x: 0};
+        let target = {x: 1};
+
+        let cameraStart = this.camera.position.clone();
+        let cameraDistance = new THREE.Vector3(0 - cameraStart.x, 150 - cameraStart.y, 0 - cameraStart.z);
+
+        let targetStart = this.controls.target.clone();
+        let targetDistance = new THREE.Vector3(0 - targetStart.x, 0 - targetStart.y, 0 - targetStart.z);
+
+        let duration = 1000;
+
+        let transition = new TWEEN.Tween(start).to(target, duration)
+            .easing(TWEEN.Easing.Linear.None)
+            .onStart(() => {
+
+            }).onUpdate((alpha) => {
+
+                this.camera.position.x = cameraStart.x + (alpha.x * cameraDistance.x);
+                this.camera.position.y = cameraStart.y + (alpha.x * cameraDistance.y);
+                this.camera.position.z = cameraStart.z + (alpha.x * cameraDistance.z);
+
+                this.controls.target.x = targetStart.x + (alpha.x * targetDistance.x);
+                this.controls.target.y = targetStart.y + (alpha.x * targetDistance.y);
+                this.controls.target.z = targetStart.z + (alpha.x * targetDistance.z);
+
+            }).onComplete(() => {
+                transition.stop();
+            }).onStop(() => {
+                this.controls.maxPolarAngle = Math.PI/3;
+            });
+
+        this.previewRemove();
+
+        transition.start();
+
+    }
+
+    previewRemove(): void {
+
+        if(this.panoBallMaterial.map) {
+            this.panoBallMaterial.map.dispose()
+            this.panoBallMaterial.map = null;
+            this.panoBallMaterial.needsUpdate = true;
+        }
+
+
+        this.scene.remove(this.panoBall);
+
+        this.state = 'map';
+
+    }
+
+    pointsIntersect(event: any): void {
+
+        if(this.customTriplets && this.state === 'map') {
+
+            this.raycaster.hit(event, this.aurasContainer, (intersects) => {
 
                 if (!intersects.length) {
                     return;
                 }
 
-                let intersect = intersects[0].object;
+                let intersect = intersects[0].object.point;
 
                 let found = false;
 
@@ -312,6 +577,7 @@ export class MapComponent {
         this.renderer.render(this.scene, this.camera);
 
         window.requestAnimationFrame(() => {
+            TWEEN.update();
             this.controls.update();
 
             this.render();

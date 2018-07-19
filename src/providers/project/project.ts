@@ -80,12 +80,12 @@ export class ProjectProvider {
         );
     }
 
-    export(id, username, password) {
+    export(id, username, password, settings) {
         let url: string = this.config.serverUrl + 'api/stmauto/export';
 
         return this.http.post(
             url,
-            {id, username, password}
+            {id, username, password, settings}
         );
     }
 

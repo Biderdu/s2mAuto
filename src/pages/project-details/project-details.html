@@ -8,12 +8,36 @@
 
     <ion-navbar>
         <ion-title>{{projectName}}</ion-title>
+        <div class="settings-button" (click)="showSettings();">
+            <img src="assets/imgs/setting_icon.png">
+        </div>
+        <div class="info-button" (click)="showInfo();">
+            <img src="assets/imgs/tips_icon.png">
+        </div>
     </ion-navbar>
 
 </ion-header>
 
 
 <ion-content padding>
+
+    <div class="settings-container" [ngClass]="{'active': settingsVisible}">
+        <div class="settings-overlay" (click)="settingsVisible = false;"></div>
+        <div class="settings-panel">
+            <div class="setting-element">
+                <div class="setting-label">
+                    Resolution
+                </div>
+                <div class="setting-input">
+                    <select [(ngModel)]="settings.resolution">
+                        <option value="2k">2k</option>
+                        <option value="4k">Original</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+
 
     <div class="loader-container" [ngClass]="{'active': processModal}">
         processing...

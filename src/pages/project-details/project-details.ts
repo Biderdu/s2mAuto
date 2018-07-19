@@ -18,6 +18,7 @@ import {MapComponent} from "../../components/map/map";
     selector: 'page-project-details',
     templateUrl: 'project-details.html'
 })
+
 export class ProjectDetailsPage {
 
     projectId: string = '';
@@ -29,10 +30,13 @@ export class ProjectDetailsPage {
     password: string = window.localStorage.getItem('password') || '';
 
     processModal: boolean = false;
+    settingsVisible: boolean = false;
 
     color: string = 'red';
 
     customTriplets: boolean = false;
+
+    settings: any = {};
 
     @ViewChild(MapComponent) map:MapComponent;
 
@@ -40,6 +44,8 @@ export class ProjectDetailsPage {
 
         this.projectId = this.navParams.get('_id');
         this.projectName = this.navParams.get('name');
+
+        this.settings.resolution = '2k';
 
         // let images = this.navParams.get('images');
 
@@ -59,7 +65,7 @@ export class ProjectDetailsPage {
 
                         let item = {
                             name: images[i].name,
-                            url: this.config.serverUrl + 'uploads/sauto/' + this.projectId + '/' + images[i].name,
+                            url: this.config.serverUrl + 'uploads/sauto/' + this.projectId + '/lowres/' + images[i].name,
                             position: images[i].position
 
                         };
@@ -82,6 +88,18 @@ export class ProjectDetailsPage {
 
     }
 
+    showSettings(): void {
+
+        this.settingsVisible = !this.settingsVisible;
+
+    }
+
+    showInfo(): void {
+
+        console.log('SHOW INFO');
+
+    }
+
     triplePick(): void {
 
         if(this.customTriplets) {
@@ -96,7 +114,6 @@ export class ProjectDetailsPage {
 
         }
 
-        console.log('triple pick');
     }
 
     calculate_old(): void {
@@ -136,7 +153,7 @@ export class ProjectDetailsPage {
 
         this.processModal = true;
 
-        this.prjProvider.export(this.projectId, this.username, this.password).subscribe(
+        this.prjProvider.export(this.projectId, this.username, this.password, this.settings).subscribe(
             (res: any) => {
 
                 this.processModal = false;
@@ -165,7 +182,9 @@ export class ProjectDetailsPage {
         //
         // obj.src = 'https://iso.500px.com/wp-content/uploads/2015/11/photo-129299193.jpg';
 
-        this.imagePicker.getPictures({maximumImagesCount: 1}).then((results) => {
+        this.imagePicker.getPictures({maximumImagesCount: 1, outputType: 1}).then((results) => {
+            console.log(results);
+
             for (let i = 0; i < results.length; i++) {
 
                 const obj = new Image();
@@ -190,13 +209,15 @@ export class ProjectDetailsPage {
 
     uploadImage(image): void {
 
+        console.log(image);
+
         const canvas = document.createElement('canvas');
         canvas.width = image.naturalWidth;
         canvas.height = image.naturalHeight;
 
         canvas.getContext('2d').drawImage(image, 0, 0);
 
-        const data = canvas.toDataURL('image/jpeg',0.9);
+        const data = canvas.toDataURL('image/jpeg',0.99);
 
         const fullname = image.src.split("/").pop().toLowerCase();
 
@@ -211,9 +232,10 @@ export class ProjectDetailsPage {
         }
 
         const info = {
-            data,
-            fullname,
-            triplets
+            data: data,
+            fullname: fullname,
+            triplets: triplets,
+            settings : this.settings
         };
 
         this.processModal = true;
@@ -274,7 +296,7 @@ export class ProjectDetailsPage {
     }
 
     redrawMap() {
-        this.map.load(this.images);
+        this.map.load(this.images, this.projectId);
     }
 
     ionViewDidEnter() {
