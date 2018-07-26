@@ -38,21 +38,49 @@
         </div>
     </div>
 
+    <div class="info-container" [ngClass]="{'active': infoVisible}">
+        <div class="info-overlay" (click)="infoVisible = false;"></div>
+        <div class="info-panel">
+            <div class="info-title">Tips</div>
+            <div class="info-item">
+                1.Map operation: One finger can rotate the map. Two fingers can move the map.
+            </div>
+            <div class="info-item">
+                2.Triplet pick: User can plan to taking a new panorama in certain place which should have overlap with the existed panorama. And before taking it, you can  activate "triplet pick" and pick 2 closing spots on the map. then taking panorama, and add the photo, it will help to calculate the position due to our picked closing spots.
+            </div>
+            <div class="info-item">
+                3.Spot operation: Touch a spot for 2 seconds, it  will enable jump to the corresponding panorama. With the "map" button on the upleft, users can return back to map.
+            </div>
+        </div>
+    </div>
 
-    <div class="loader-container" [ngClass]="{'active': processModal}">
+    <div class="export-alert-container" [ngClass]="{'active': exportAlertVisible}">
+        <div class="warning">Do you want to export this project again?</div>
+        <div class="buttons-container">
+            <div class="export-ok-button" (click)="export(); exportAlertVisible = false;">Ok</div>
+            <div class="export-cancel-button" (click)="exportAlertVisible = false;">Cancel</div>
+        </div>
+    </div>
+
+    <div class="loader-container" [ngClass]="{'active': modal.processingModal}">
         processing...
     </div>
 
     <div class="buttons-container">
-        <div class="upload-photo-button" (click)="selectImage()">add photo</div>
+        <!--<div class="upload-photo-button" (click)="selectImage()">add photo</div>-->
+
+        <div class="input-image-container">
+            <label for="image-upload">Add photo</label>
+            <input id="image-upload" type="file" (change)="onImageChange($event)">
+        </div>
 
         <div class="calculate-button" [ngClass]="{'active': customTriplets}" (click)="triplePick()">Triple pick</div>
 
-        <div class="export-button" (click)="export()">export</div>
+        <div class="export-button" (click)="exportInit()">export</div>
     </div>
 
     <div class="map-container">
-        <map [color]="color"></map>
+        <map (panoRemoveEvent)="removePanoEvent($event)"></map>
     </div>
 
     <div class="images-list">

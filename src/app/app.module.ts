@@ -16,6 +16,7 @@ import {ProjectDetailsPage} from '../pages/project-details/project-details';
 import {AuthProvider} from '../providers/auth/auth';
 import {ProjectProvider} from '../providers/project/project';
 import {ConfigProvider} from '../providers/config/config';
+import {ModalProvider} from '../providers/modal/modal';
 
 @NgModule({
     declarations: [
@@ -44,7 +45,8 @@ import {ConfigProvider} from '../providers/config/config';
         AuthProvider,
         ProjectProvider,
         ImagePicker,
-        ConfigProvider
+        ConfigProvider,
+        ModalProvider
     ]
 })
 export class AppModule {

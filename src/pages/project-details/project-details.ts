@@ -5,6 +5,7 @@ import {ImagePicker} from '@ionic-native/image-picker';
 import {ProjectProvider} from "../../providers/project/project";
 import {ConfigProvider} from "../../providers/config/config";
 import {MapComponent} from "../../components/map/map";
+import {ModalProvider} from "../../providers/modal/modal";
 
 /**
  * Generated class for the ProjectDetailsPage page.
@@ -29,8 +30,12 @@ export class ProjectDetailsPage {
     username: string = window.localStorage.getItem('username') || '';
     password: string = window.localStorage.getItem('password') || '';
 
-    processModal: boolean = false;
+    // processModal: boolean = false;
     settingsVisible: boolean = false;
+    infoVisible: boolean = false;
+
+    exported: boolean = false;
+    exportAlertVisible: boolean = false;
 
     color: string = 'red';
 
@@ -40,12 +45,12 @@ export class ProjectDetailsPage {
 
     @ViewChild(MapComponent) map:MapComponent;
 
-    constructor(public navCtrl: NavController, public navParams: NavParams, private imagePicker: ImagePicker, public prjProvider: ProjectProvider, public config: ConfigProvider) {
+    constructor(public navCtrl: NavController, public navParams: NavParams, private imagePicker: ImagePicker, public prjProvider: ProjectProvider, public config: ConfigProvider, public modal: ModalProvider) {
 
         this.projectId = this.navParams.get('_id');
         this.projectName = this.navParams.get('name');
 
-        this.settings.resolution = '2k';
+        this.settings.resolution = '4k';
 
         // let images = this.navParams.get('images');
 
@@ -58,6 +63,14 @@ export class ProjectDetailsPage {
                 console.log('LOAD', res);
 
                 if(res.status) {
+
+                    if(res.project.processing) {
+                        this.modal.showProcessingModal();
+                    } else {
+                        this.modal.hideProcessingModal();
+                    }
+
+                    this.exported = res.project.exported;
 
                     let images = res.project.images;
 
@@ -74,7 +87,7 @@ export class ProjectDetailsPage {
 
                     }
 
-                    this.redrawMap();
+                    this.redrawMap(false);
 
                 }
 
@@ -96,7 +109,7 @@ export class ProjectDetailsPage {
 
     showInfo(): void {
 
-        console.log('SHOW INFO');
+        this.infoVisible = !this.infoVisible;
 
     }
 
@@ -118,12 +131,12 @@ export class ProjectDetailsPage {
 
     calculate_old(): void {
 
-        this.processModal = true;
+        this.modal.showProcessingModal();
 
         this.prjProvider.calculate(this.projectId).subscribe(
             (res: any) => {
 
-                this.processModal = false;
+                this.modal.hideProcessingModal();
 
                 alert('Calculations Done');
 
@@ -149,14 +162,26 @@ export class ProjectDetailsPage {
         console.log(triplets);
     }
 
+    exportInit(): void {
+
+        if(this.exported) {
+            this.exportAlertVisible = true;
+        } else {
+            this.export();
+        }
+
+    }
+
     export(): void {
 
-        this.processModal = true;
+        this.modal.showProcessingModal();
 
         this.prjProvider.export(this.projectId, this.username, this.password, this.settings).subscribe(
             (res: any) => {
 
-                this.processModal = false;
+                this.modal.hideProcessingModal();
+
+                this.exported = true;
 
                 alert('Export Success');
 
@@ -167,6 +192,51 @@ export class ProjectDetailsPage {
                 console.log(error)
             }
         );
+
+    }
+
+    onImageChange(event: any): void {
+
+        let eventObj: MSInputMethodContext = <MSInputMethodContext> event;
+        let target: HTMLInputElement = <HTMLInputElement> eventObj.target;
+        let files: FileList = target.files;
+        let file = files[0];
+
+        const name = file.name.toLowerCase();
+
+        let found = false;
+
+        for (let i = 0, length = this.images.length; i < length; i++) {
+            const image = this.images[i];
+
+            if(image.name === name) {
+                found = true;
+            }
+        }
+
+        if(file && !found) {
+
+            const reader = new FileReader();
+
+            reader.readAsDataURL(file);
+            reader.onload = () => {
+
+                let value = reader.result;
+
+                const data = {
+                    fullname: name,
+                    data: value
+                };
+
+                this.uploadImage(data);
+
+            };
+
+        }
+
+        if(found) {
+            alert('Image Duplicate!');
+        }
 
     }
 
@@ -182,7 +252,7 @@ export class ProjectDetailsPage {
         //
         // obj.src = 'https://iso.500px.com/wp-content/uploads/2015/11/photo-129299193.jpg';
 
-        this.imagePicker.getPictures({maximumImagesCount: 1, outputType: 1}).then((results) => {
+        this.imagePicker.getPictures({maximumImagesCount: 1}).then((results) => {
             console.log(results);
 
             for (let i = 0; i < results.length; i++) {
@@ -207,19 +277,11 @@ export class ProjectDetailsPage {
 
     }
 
-    uploadImage(image): void {
+    uploadImage(image: any): void {
 
-        console.log(image);
+        const data = image.data;
 
-        const canvas = document.createElement('canvas');
-        canvas.width = image.naturalWidth;
-        canvas.height = image.naturalHeight;
-
-        canvas.getContext('2d').drawImage(image, 0, 0);
-
-        const data = canvas.toDataURL('image/jpeg',0.99);
-
-        const fullname = image.src.split("/").pop().toLowerCase();
+        const fullname = image.fullname;
 
         console.log(fullname);
 
@@ -238,7 +300,7 @@ export class ProjectDetailsPage {
             settings : this.settings
         };
 
-        this.processModal = true;
+        this.modal.showProcessingModal();
 
         this.prjProvider.upload(this.projectId, info).subscribe(
             (res: any) => {
@@ -253,14 +315,14 @@ export class ProjectDetailsPage {
 
                     this.images.push(item);
 
-                    this.redrawMap();
+                    this.redrawMap(true);
 
-                    this.processModal = false;
+                    this.modal.hideProcessingModal();
 
                 } else {
                     console.log('unstable solution');
 
-                    this.processModal = false;
+                    this.modal.hideProcessingModal();
 
                     alert('unstable solution');
                 }
@@ -268,10 +330,31 @@ export class ProjectDetailsPage {
                 console.log(res);
             },
             (error) => {
-                this.processModal = false;
+                this.modal.hideProcessingModal();
                 console.log(error)
             }
         );
+
+    }
+
+    removePanoEvent(point: any): void {
+
+        let index = null;
+        let image = {
+            name: point
+        };
+
+        for (let i = 0, length = this.images.length; i < length; i++) {
+
+            if(this.images[i].name === point) {
+                index = i;
+            }
+
+        }
+
+        if(index) {
+            this.removeImage(image, index);
+        }
 
     }
 
@@ -284,7 +367,7 @@ export class ProjectDetailsPage {
                 if(res.success) {
                     this.images.splice(index,1);
 
-                    this.redrawMap();
+                    this.redrawMap(false);
                 }
 
             },
@@ -295,8 +378,8 @@ export class ProjectDetailsPage {
 
     }
 
-    redrawMap() {
-        this.map.load(this.images, this.projectId);
+    redrawMap(flag: boolean) {
+        this.map.load(this.images, this.projectId, flag);
     }
 
     ionViewDidEnter() {
